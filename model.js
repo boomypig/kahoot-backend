@@ -1,5 +1,6 @@
 const mongoose = require("mongoose")
 const bcrypt = require("bcrypt")
+const { scheduler } = require("timers/promises")
 const { Schema } = mongoose
 
 mongoose.connect(process.env.DATABASE)
@@ -18,6 +19,39 @@ const UserSchema = Schema({
     },
 })
 
+const QuizSchema = Schema ({
+    title: {
+        type:String,
+        required:[true,"Must have a Title"],
+     },
+     owner: {
+        type: Schema.Types.ObjectId,
+        ref:"User",
+        required: [true,"A quiz needs a person"]
+     },
+
+     description: String,
+
+     questions: [
+        {
+        questionText:{
+            type:String,
+            required:[true,"Question requires text"]
+        },
+        possibleChoices:[
+            {
+            answerText:{
+                type:String,
+                required: [true,"Need text"]
+            },
+            isCorrect:{
+                type: Boolean,
+                required:[true,"AN answer must be given"]
+            },
+        }]
+     }]
+ })
+
 UserSchema.methods.setPassword = async function(plainPassword) {
     try{
         let encryptedPassword = await bcrypt.hash(plainPassword,12);
@@ -31,7 +65,9 @@ UserSchema.methods.verifyPassword = async function(password){
     return isGood;
 }
 const User = mongoose.model("User", UserSchema)
+const Quiz = mongoose.model("Quiz",QuizSchema)
 
 module.exports = {
     User,
+    Quiz,
 }
