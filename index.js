@@ -13,6 +13,8 @@ app.use(session({
     resave: false,
 }))
 
+app.use(express.static("public"))
+
 
 //the purpose of this middleware is to check if a rquest has a session and
 // that session has a  userID field that connects to a suer in our database
@@ -63,6 +65,7 @@ app.post("/users", async (request, response) => {
         response.status(500).send(error);
     }
 });
+
 app.get('/session', Authmiddleware,(response,request) => {
   response.send(request.session);
 })
@@ -103,6 +106,10 @@ app.put("/quizzes/:quizID", Authmiddleware, async function (req, res) {
     res.status(422).send(error);
   }
 });
+app.delete("/session", function(req,res){
+  req.session.userID = undefined
+  res.status(204).send();
+})
 
 app.delete("/quizzes/:quizID", Authmiddleware, async function (req, res) {
   try {
@@ -121,7 +128,7 @@ app.delete("/quizzes/:quizID", Authmiddleware, async function (req, res) {
   }
 });
 
-app.post("/quizzes", async function (req, res) {
+app.post("/quizzes", Authmiddleware, async function (req, res) {
     try {
         console.log(req.session)
       const newQuiz = await new model.Quiz({
@@ -163,9 +170,8 @@ app.post("/session",  async (request,response) => {
 
          // set the cookie
         request.session.userID = user._id;
-        
-        response.status(201).send("YOURE LOgGED IN");
-
+        request.session.name = user.name;
+        response.status(201).send(request.session);
     }catch(error){
         response.status(500);
         console.log(error)

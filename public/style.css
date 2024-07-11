@@ -1,0 +1,17 @@
+/* *{
+  margin: 0;
+  padding: 0;
+} */
+nav{
+    display: flex;
+    align-items: center;
+  justify-content: space-around;
+}
+body{ 
+  background-color: gray;
+}
+.login{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
